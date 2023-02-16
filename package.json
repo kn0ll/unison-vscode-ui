@@ -79,13 +79,13 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run package",
+		"vscode:prepublish": "pnpm run package",
 		"compile": "node scripts/build.js",
 		"watch": "node scripts/watch.js",
-		"package": "npm run compile",
+		"package": "pnpm run compile",
 		"test-compile": "tsc -p ./",
 		"test-watch": "tsc -watch -p ./",
-		"pretest": "npm run test-compile && npm run lint",
+		"pretest": "pnpm run test-compile && pnpm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js"
 	},
