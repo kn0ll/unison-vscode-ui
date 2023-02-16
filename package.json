@@ -3,7 +3,7 @@
 	"displayName": "Unison UI",
 	"description": "View your Unison codebase inside of VS Code.",
 	"publisher": "TomSherman",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"icon": "resources/extension-icon.png",
 	"engines": {
 		"vscode": "^1.75.0"
