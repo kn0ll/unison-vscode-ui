@@ -13,9 +13,7 @@ export interface Context {
 
 export type Event =
 	| {
-			type:
-				| 'done.invoke.getBaseUrlFromWorkspaceConfig'
-				| 'done.invoke.getBaseUrlFromUser';
+			type: 'done.invoke.extension.configuring:invocation[0]';
 			data: {
 				baseUrl: string | undefined;
 			};
@@ -45,6 +43,7 @@ export const createExtensionMachine = ({
 		{
 			id: 'extension',
 			initial: 'idle',
+			predictableActionArguments: true,
 			context: {
 				subscriptions: [],
 				codebaseProvider: null,
@@ -142,10 +141,10 @@ export const createExtensionMachine = ({
 					return { baseUrl: unisonUrl };
 				},
 				persistBaseUrl: async (_, event) => {
-					assertEventType(event, [
-						'done.invoke.getBaseUrlFromWorkspaceConfig',
-						'done.invoke.getBaseUrlFromUser',
-					]);
+					assertEventType(
+						event,
+						'done.invoke.extension.configuring:invocation[0]'
+					);
 
 					await workspaceConfig.update(
 						BASE_URL_CONFIG_NAME,
@@ -155,10 +154,10 @@ export const createExtensionMachine = ({
 			},
 			actions: {
 				setup: assign((ctx, event) => {
-					assertEventType(event, [
-						'done.invoke.getBaseUrlFromWorkspaceConfig',
-						'done.invoke.getBaseUrlFromUser',
-					]);
+					assertEventType(
+						event,
+						'done.invoke.extension.configuring:invocation[0]'
+					);
 
 					if (!event.data.baseUrl) {
 						return {};

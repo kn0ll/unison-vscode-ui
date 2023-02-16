@@ -1,18 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { interpret, Interpreter } from 'xstate';
-import { Context, createExtensionMachine, Event } from './state/extension';
+import { interpret, InterpreterFrom } from 'xstate';
+import { createExtensionMachine, Event } from './state/extension';
 
-let service: null | Interpreter<
-	Context,
-	any,
-	Event,
-	{
-		value: any;
-		context: Context;
-	}
-> = null;
+let service: null | InterpreterFrom<ReturnType<typeof createExtensionMachine>> =
+	null;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
