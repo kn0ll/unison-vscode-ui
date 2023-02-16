@@ -1,7 +1,7 @@
-import fetch from "node-fetch";
 import * as t from "io-ts";
 import { isLeft } from "fp-ts/lib/Either";
 import { PathReporter } from "io-ts/lib/PathReporter";
+import { fetch } from "undici";
 
 const Subnamespace = t.type(
 	{
@@ -112,7 +112,7 @@ interface GetDefinitionParams {
 	names: string;
 }
 export interface ApiClient {
-	list: (namespace: string) => Promise<TNamespaceListing>;
+	list: (namespace?: string) => Promise<TNamespaceListing>;
 	getDefinition: (
 		params: GetDefinitionParams
 	) => Promise<TGetDefinitionResponse>;
@@ -121,8 +121,11 @@ export interface ApiClient {
 export function createApiClient(apiRoot: string): ApiClient {
 	return {
 		list: async (namespace) => {
-			const queryParams = `?namespace=${namespace}`;
-			const res = await fetch(`${apiRoot}/list${queryParams}`);
+			const url = new URL(`${apiRoot}/list`);
+			if (namespace) {
+				url.searchParams.append("namespace", namespace);
+			}
+			const res = await fetch(url);
 			return unwrapResult(NamespaceListing.decode(await res.json()));
 		},
 		getDefinition: async ({ names }) => {

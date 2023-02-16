@@ -65,8 +65,7 @@ export class CodebaseProvider
 	async getChildren(
 		element?: CodebaseTreeviewChild
 	): Promise<CodebaseTreeviewChild[]> {
-		const namespace = element ? `.${element?.namespaceListingFQN}` : ".";
-		const listing = await this.apiClient.list(namespace);
+		const listing = await this.apiClient.list(element?.namespaceListingFQN);
 		return listing.namespaceListingChildren
 			.map((child) => mapListingChildToTreeItem(child, listing))
 			.filter((child): child is CodebaseTreeviewChild => Boolean(child));
@@ -82,7 +81,9 @@ const mapListingChildToTreeItem = (
 			return new CodebaseTreeviewChild(
 				child.contents.namespaceName,
 				child,
-				`${listing.namespaceListingFQN}.${child.contents.namespaceName}`
+				[listing.namespaceListingFQN, child.contents.namespaceName]
+					.filter((n) => n !== "")
+					.join(".")
 			);
 
 		case "TermObject":
@@ -123,7 +124,8 @@ class CodebaseTreeviewChild extends vscode.TreeItem {
 function getNamespaceChildId(child: API.TNamespaceChild): string {
 	switch (child.tag) {
 		case "Subnamespace":
-			return child.contents.namespaceHash;
+			// UCM sometimes has namespaces with the same hash under different names. I guess this makes sense, and I think that a name+hash is a unique identifier for a namespace.
+			return `${child.contents.namespaceName}${child.contents.namespaceHash}`;
 
 		case "TermObject":
 			return `${child.contents.termName}${child.contents.termHash}`;

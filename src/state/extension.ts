@@ -96,6 +96,7 @@ export const createExtensionMachine = ({
 					invoke: {
 						src: "persistBaseUrl",
 						onDone: "configured",
+						onError: "awaiting_configuration",
 					},
 				},
 				configured: {
