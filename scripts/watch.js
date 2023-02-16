@@ -1,23 +1,14 @@
-const { build } = require("esbuild");
+const { build, context } = require("esbuild");
 
 const config = require("./build-config");
 
+async function watch() {
+	const ctx = await context(config);
+	await ctx.watch();
+}
+
 build(config)
-	.then(() => {
-		console.log("Initial build complete, watching...");
-		return build({
-			...require("./build-config"),
-			watch: {
-				onRebuild(error, result) {
-					if (error) {
-						console.error("watch build failed:", error);
-					} else {
-						console.log("watch build succeeded:", result);
-					}
-				},
-			},
-		});
-	})
+	.then(watch)
 	.catch((err) => {
 		console.error(err);
 		process.exit(1);
