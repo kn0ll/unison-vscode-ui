@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import { Actor, assign, createMachine } from "xstate";
 import { createApiClient } from "../api";
 import { CodebaseProvider } from "../tree-view";
-import { assertEventType } from "./util";
 
 export interface Context {
 	subscriptions: {
@@ -11,13 +10,7 @@ export interface Context {
 	codebaseProvider: CodebaseProvider | null;
 }
 
-export type Event =
-	| {
-			type: "done.invoke.extension.configuring:invocation[0]";
-			data: {
-				baseUrl: string | undefined;
-			};
-	  }
+export type ExtensionEvent =
 	| {
 			type: "READY";
 			baseUrl: string;
@@ -36,14 +29,32 @@ interface MachineDependencies {
 	workspaceConfig: vscode.WorkspaceConfiguration;
 }
 
+type Services = {
+	persistBaseUrl: {
+		data: void;
+	};
+	getBaseUrlFromUser: {
+		data: { baseUrl: string | undefined };
+	};
+	getBaseUrlFromWorkspaceConfig: {
+		data: { baseUrl: string | undefined };
+	};
+};
+
 export const createExtensionMachine = ({
 	workspaceConfig,
 }: MachineDependencies) =>
-	createMachine<Context, Event>(
+	createMachine(
 		{
 			id: "extension",
 			initial: "idle",
 			predictableActionArguments: true,
+			tsTypes: {} as import("./extension.typegen").Typegen0,
+			schema: {
+				context: {} as Context,
+				events: {} as ExtensionEvent,
+				services: {} as Services,
+			},
 			context: {
 				subscriptions: [],
 				codebaseProvider: null,
@@ -142,11 +153,6 @@ export const createExtensionMachine = ({
 					return { baseUrl: unisonUrl };
 				},
 				persistBaseUrl: async (_, event) => {
-					assertEventType(
-						event,
-						"done.invoke.extension.configuring:invocation[0]"
-					);
-
 					await workspaceConfig.update(
 						BASE_URL_CONFIG_NAME,
 						event.data.baseUrl
@@ -155,11 +161,6 @@ export const createExtensionMachine = ({
 			},
 			actions: {
 				setup: assign((ctx, event) => {
-					assertEventType(
-						event,
-						"done.invoke.extension.configuring:invocation[0]"
-					);
-
 					if (!event.data.baseUrl) {
 						return {};
 					}

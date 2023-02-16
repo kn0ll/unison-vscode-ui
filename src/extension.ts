@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { interpret, InterpreterFrom } from "xstate";
-import { createExtensionMachine, Event } from "./state/extension";
+import { createExtensionMachine } from "./state/extension";
 
 let service: null | InterpreterFrom<ReturnType<typeof createExtensionMachine>> =
 	null;
