@@ -1,6 +1,6 @@
-const { build } = require('esbuild');
+const { build } = require("esbuild");
 
-build(require('./build-config')).catch((err) => {
+build(require("./build-config")).catch((err) => {
 	console.error(err);
 	process.exit(1);
 });

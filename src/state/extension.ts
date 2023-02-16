@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
-import { Actor, assign, createMachine } from 'xstate';
-import { createApiClient } from '../api';
-import { CodebaseProvider } from '../tree-view';
-import { assertEventType } from './util';
+import * as vscode from "vscode";
+import { Actor, assign, createMachine } from "xstate";
+import { createApiClient } from "../api";
+import { CodebaseProvider } from "../tree-view";
+import { assertEventType } from "./util";
 
 export interface Context {
 	subscriptions: {
@@ -13,23 +13,23 @@ export interface Context {
 
 export type Event =
 	| {
-			type: 'done.invoke.extension.configuring:invocation[0]';
+			type: "done.invoke.extension.configuring:invocation[0]";
 			data: {
 				baseUrl: string | undefined;
 			};
 	  }
 	| {
-			type: 'READY';
+			type: "READY";
 			baseUrl: string;
 	  }
 	| {
-			type: 'REFRESH';
+			type: "REFRESH";
 	  }
 	| {
-			type: 'ACTIVATE';
+			type: "ACTIVATE";
 	  }
 	| {
-			type: 'CONFIGURE';
+			type: "CONFIGURE";
 	  };
 
 interface MachineDependencies {
@@ -41,8 +41,8 @@ export const createExtensionMachine = ({
 }: MachineDependencies) =>
 	createMachine<Context, Event>(
 		{
-			id: 'extension',
-			initial: 'idle',
+			id: "extension",
+			initial: "idle",
 			predictableActionArguments: true,
 			context: {
 				subscriptions: [],
@@ -51,19 +51,19 @@ export const createExtensionMachine = ({
 			states: {
 				idle: {
 					on: {
-						ACTIVATE: 'checking_saved_url',
+						ACTIVATE: "checking_saved_url",
 					},
 				},
 				checking_saved_url: {
 					invoke: {
-						src: 'getBaseUrlFromWorkspaceConfig',
+						src: "getBaseUrlFromWorkspaceConfig",
 						onDone: [
 							{
-								target: 'setting_up',
+								target: "setting_up",
 								cond: (_, event) => Boolean(event.data.baseUrl),
 							},
 							{
-								target: 'awaiting_configuration',
+								target: "awaiting_configuration",
 							},
 						],
 					},
@@ -71,52 +71,52 @@ export const createExtensionMachine = ({
 				awaiting_configuration: {
 					on: {
 						REFRESH: {
-							target: 'awaiting_configuration',
-							actions: 'showNotConfiguredError',
+							target: "awaiting_configuration",
+							actions: "showNotConfiguredError",
 						},
-						CONFIGURE: 'configuring',
+						CONFIGURE: "configuring",
 					},
 				},
 				configuring: {
 					invoke: {
-						src: 'getBaseUrlFromUser',
+						src: "getBaseUrlFromUser",
 						onDone: [
 							{
-								target: 'setting_up',
+								target: "setting_up",
 								cond: (_, event) => Boolean(event.data.baseUrl),
 							},
 							{
-								target: 'awaiting_configuration',
+								target: "awaiting_configuration",
 							},
 						],
 					},
 				},
 				setting_up: {
-					entry: 'setup',
+					entry: "setup",
 					invoke: {
-						src: 'persistBaseUrl',
-						onDone: 'configured',
+						src: "persistBaseUrl",
+						onDone: "configured",
 					},
 				},
 				configured: {
 					on: {
 						REFRESH: {
-							target: 'configured',
-							actions: 'refresh',
+							target: "configured",
+							actions: "refresh",
 						},
-						CONFIGURE: 'reconfiguring',
+						CONFIGURE: "reconfiguring",
 					},
 				},
 				reconfiguring: {
 					invoke: {
-						src: 'getBaseUrlFromUser',
+						src: "getBaseUrlFromUser",
 						onDone: [
 							{
-								target: 'setting_up',
+								target: "setting_up",
 								cond: (_, event) => Boolean(event.data.baseUrl),
 							},
 							{
-								target: 'configured',
+								target: "configured",
 							},
 						],
 					},
@@ -130,11 +130,11 @@ export const createExtensionMachine = ({
 				}),
 				getBaseUrlFromUser: async () => {
 					const unisonUrl = await vscode.window.showInputBox({
-						title: 'Enter UCM URL',
+						title: "Enter UCM URL",
 					});
 
 					if (unisonUrl === undefined) {
-						vscode.window.showErrorMessage('Please enter a UCM URL.');
+						vscode.window.showErrorMessage("Please enter a UCM URL.");
 						return { baseUrl: undefined };
 					}
 
@@ -143,7 +143,7 @@ export const createExtensionMachine = ({
 				persistBaseUrl: async (_, event) => {
 					assertEventType(
 						event,
-						'done.invoke.extension.configuring:invocation[0]'
+						"done.invoke.extension.configuring:invocation[0]"
 					);
 
 					await workspaceConfig.update(
@@ -156,7 +156,7 @@ export const createExtensionMachine = ({
 				setup: assign((ctx, event) => {
 					assertEventType(
 						event,
-						'done.invoke.extension.configuring:invocation[0]'
+						"done.invoke.extension.configuring:invocation[0]"
 					);
 
 					if (!event.data.baseUrl) {
@@ -167,7 +167,7 @@ export const createExtensionMachine = ({
 
 					const codebaseProvider = new CodebaseProvider(apiClient);
 
-					const treeView = vscode.window.createTreeView('codebase', {
+					const treeView = vscode.window.createTreeView("codebase", {
 						treeDataProvider: codebaseProvider,
 					});
 
@@ -178,15 +178,15 @@ export const createExtensionMachine = ({
 				}),
 				refresh: (ctx) => {
 					if (!ctx.codebaseProvider) {
-						throw new Error('Expected codebaseProvider in context');
+						throw new Error("Expected codebaseProvider in context");
 					}
 
 					ctx.codebaseProvider.refresh();
 				},
 				showNotConfiguredError: () =>
-					vscode.window.showErrorMessage('Codebase not yet configured.'),
+					vscode.window.showErrorMessage("Codebase not yet configured."),
 			},
 		}
 	);
 
-const BASE_URL_CONFIG_NAME = 'unison-ui.apiBaseUrl';
+const BASE_URL_CONFIG_NAME = "unison-ui.apiBaseUrl";

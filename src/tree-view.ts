@@ -1,7 +1,7 @@
-import { elem } from 'fp-ts/lib/Option';
-import path = require('path');
-import * as vscode from 'vscode';
-import * as API from './api';
+import { elem } from "fp-ts/lib/Option";
+import path = require("path");
+import * as vscode from "vscode";
+import * as API from "./api";
 
 export class CodebaseProvider
 	implements vscode.TreeDataProvider<CodebaseTreeviewChild>
@@ -32,11 +32,11 @@ export class CodebaseProvider
 		element: CodebaseTreeviewChild
 	): Promise<vscode.TreeItem> {
 		if (
-			element.unisonChild.tag === 'TermObject' ||
-			element.unisonChild.tag === 'TypeObject'
+			element.unisonChild.tag === "TermObject" ||
+			element.unisonChild.tag === "TypeObject"
 		) {
 			const name =
-				element.unisonChild.tag === 'TermObject'
+				element.unisonChild.tag === "TermObject"
 					? element.unisonChild.contents.termHash
 					: element.unisonChild.contents.typeHash;
 
@@ -51,7 +51,7 @@ export class CodebaseProvider
 			if (signatureTokens) {
 				const typeDefinition = signatureTokens
 					.map((token) => token.segment)
-					.join('');
+					.join("");
 
 				item.tooltip = new vscode.MarkdownString(
 					`\`\`\`\n${typeDefinition}\n\`\`\``
@@ -65,7 +65,7 @@ export class CodebaseProvider
 	async getChildren(
 		element?: CodebaseTreeviewChild
 	): Promise<CodebaseTreeviewChild[]> {
-		const namespace = element ? `.${element?.namespaceListingFQN}` : '.';
+		const namespace = element ? `.${element?.namespaceListingFQN}` : ".";
 		const listing = await this.apiClient.list(namespace);
 		return listing.namespaceListingChildren
 			.map((child) => mapListingChildToTreeItem(child, listing))
@@ -78,25 +78,25 @@ const mapListingChildToTreeItem = (
 	listing: API.TNamespaceListing
 ): CodebaseTreeviewChild | null => {
 	switch (child.tag) {
-		case 'Subnamespace':
+		case "Subnamespace":
 			return new CodebaseTreeviewChild(
 				child.contents.namespaceName,
 				child,
 				`${listing.namespaceListingFQN}.${child.contents.namespaceName}`
 			);
 
-		case 'TermObject':
+		case "TermObject":
 			return new CodebaseTreeviewChild(child.contents.termName, child);
 
-		case 'TypeObject':
+		case "TypeObject":
 			return new CodebaseTreeviewChild(child.contents.typeName, child);
 
-		case 'PatchObject':
+		case "PatchObject":
 			return null;
 	}
 
 	// Only reachable if we forget a child type
-	throw new Error('Unimplemented ' + (child as any).tag);
+	throw new Error("Unimplemented " + (child as any).tag);
 };
 
 class CodebaseTreeviewChild extends vscode.TreeItem {
@@ -115,51 +115,51 @@ class CodebaseTreeviewChild extends vscode.TreeItem {
 		this.id = getNamespaceChildId(unisonChild);
 		const iconName = getNamespaceChildIconName(unisonChild);
 		if (iconName) {
-			this.iconPath = path.join(__filename, '..', '..', 'resources', iconName);
+			this.iconPath = path.join(__filename, "..", "..", "resources", iconName);
 		}
 	}
 }
 
 function getNamespaceChildId(child: API.TNamespaceChild): string {
 	switch (child.tag) {
-		case 'Subnamespace':
+		case "Subnamespace":
 			return child.contents.namespaceHash;
 
-		case 'TermObject':
+		case "TermObject":
 			return `${child.contents.termName}${child.contents.termHash}`;
 
-		case 'TypeObject':
+		case "TypeObject":
 			return `${child.contents.typeName}${child.contents.typeHash}`;
 
-		case 'PatchObject':
-			throw new Error('Id is not implemented for PatchObject');
+		case "PatchObject":
+			throw new Error("Id is not implemented for PatchObject");
 	}
 }
 
 function getNamespaceChildIconName(child: API.TNamespaceChild): string | null {
-	if (child.tag === 'PatchObject') {
-		return 'icon-patch.svg';
+	if (child.tag === "PatchObject") {
+		return "icon-patch.svg";
 	}
 
-	if (child.tag === 'TypeObject') {
+	if (child.tag === "TypeObject") {
 		switch (child.contents.typeTag) {
-			case 'Ability':
-				return 'icon-ability.svg';
-			case 'Data':
-				return 'icon-type.svg';
+			case "Ability":
+				return "icon-ability.svg";
+			case "Data":
+				return "icon-type.svg";
 			default:
 				return null;
 		}
 	}
 
-	if (child.tag === 'TermObject') {
+	if (child.tag === "TermObject") {
 		switch (child.contents.termTag) {
-			case 'Doc':
-				return 'icon-document.svg';
-			case 'Test':
-				return 'icon-checkmark.svg';
+			case "Doc":
+				return "icon-document.svg";
+			case "Test":
+				return "icon-checkmark.svg";
 			default:
-				return 'icon-term.svg';
+				return "icon-term.svg";
 		}
 	}
 

@@ -1,18 +1,18 @@
-const { build } = require('esbuild');
+const { build } = require("esbuild");
 
-const config = require('./build-config');
+const config = require("./build-config");
 
 build(config)
 	.then(() => {
-		console.log('Initial build complete, watching...');
+		console.log("Initial build complete, watching...");
 		return build({
-			...require('./build-config'),
+			...require("./build-config"),
 			watch: {
 				onRebuild(error, result) {
 					if (error) {
-						console.error('watch build failed:', error);
+						console.error("watch build failed:", error);
 					} else {
-						console.log('watch build succeeded:', result);
+						console.log("watch build succeeded:", result);
 					}
 				},
 			},

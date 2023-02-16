@@ -1,8 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-import { interpret, InterpreterFrom } from 'xstate';
-import { createExtensionMachine, Event } from './state/extension';
+import * as vscode from "vscode";
+import { interpret, InterpreterFrom } from "xstate";
+import { createExtensionMachine, Event } from "./state/extension";
 
 let service: null | InterpreterFrom<ReturnType<typeof createExtensionMachine>> =
 	null;
@@ -24,16 +24,16 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 		.start();
 
-	service.send('ACTIVATE');
+	service.send("ACTIVATE");
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('unison-ui.configureCodebase', () =>
-			service!.send('CONFIGURE')
+		vscode.commands.registerCommand("unison-ui.configureCodebase", () =>
+			service!.send("CONFIGURE")
 		)
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('unison-ui.refreshCodebase', () =>
-			service!.send('REFRESH')
+		vscode.commands.registerCommand("unison-ui.refreshCodebase", () =>
+			service!.send("REFRESH")
 		)
 	);
 }

@@ -1,15 +1,15 @@
-import { EventObject } from 'xstate';
+import { EventObject } from "xstate";
 
 export function assertEventType<
 	TEvent extends EventObject,
-	TType extends TEvent['type']
+	TType extends TEvent["type"]
 >(
 	event: TEvent,
 	type: TType
 ): asserts event is Extract<TEvent, { type: TType }>;
 export function assertEventType<
 	TEvent extends EventObject,
-	TTypes extends readonly TEvent['type'][]
+	TTypes extends readonly TEvent["type"][]
 >(
 	event: TEvent,
 	type: TTypes
@@ -18,7 +18,7 @@ export function assertEventType(
 	event: EventObject,
 	type: string | string[]
 ): void {
-	if (typeof type === 'string' && event.type !== type) {
+	if (typeof type === "string" && event.type !== type) {
 		throw new Error(
 			`Expected event type "${type}", found type "${event.type}"`
 		);

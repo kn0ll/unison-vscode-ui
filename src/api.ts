@@ -1,57 +1,57 @@
-import fetch from 'node-fetch';
-import * as t from 'io-ts';
-import { isLeft } from 'fp-ts/lib/Either';
-import { PathReporter } from 'io-ts/lib/PathReporter';
+import fetch from "node-fetch";
+import * as t from "io-ts";
+import { isLeft } from "fp-ts/lib/Either";
+import { PathReporter } from "io-ts/lib/PathReporter";
 
 const Subnamespace = t.type(
 	{
-		tag: t.literal('Subnamespace'),
+		tag: t.literal("Subnamespace"),
 		contents: t.type({
 			namespaceHash: t.string,
 			namespaceName: t.string,
 			namespaceSize: t.number,
 		}),
 	},
-	'Subnamespace'
+	"Subnamespace"
 );
 
 const TermObject = t.type(
 	{
-		tag: t.literal('TermObject'),
+		tag: t.literal("TermObject"),
 		contents: t.type({
 			termHash: t.string,
 			termName: t.string,
 			termTag: t.union([t.string, t.null]),
 		}),
 	},
-	'TermObject'
+	"TermObject"
 );
 
 const TypeObject = t.type(
 	{
-		tag: t.literal('TypeObject'),
+		tag: t.literal("TypeObject"),
 		contents: t.type({
 			typeHash: t.string,
 			typeName: t.string,
 			typeTag: t.string,
 		}),
 	},
-	'TypeObject'
+	"TypeObject"
 );
 
 const PatchObject = t.type(
 	{
-		tag: t.literal('PatchObject'),
+		tag: t.literal("PatchObject"),
 		contents: t.type({
 			patchName: t.string,
 		}),
 	},
-	'PatchObject'
+	"PatchObject"
 );
 
 const NamespaceChild = t.union(
 	[Subnamespace, TermObject, TypeObject, PatchObject],
-	'NamespaceChild'
+	"NamespaceChild"
 );
 export type TNamespaceChild = t.TypeOf<typeof NamespaceChild>;
 
@@ -61,7 +61,7 @@ const NamespaceListing = t.type(
 		namespaceListingHash: t.string,
 		namespaceListingChildren: t.array(NamespaceChild),
 	},
-	'NamespaceListing'
+	"NamespaceListing"
 );
 export type TNamespaceListing = t.TypeOf<typeof NamespaceListing>;
 
@@ -69,7 +69,7 @@ const TermToken = t.type(
 	{
 		segment: t.string,
 	},
-	'TermToken'
+	"TermToken"
 );
 
 const TermDefinition = t.type(
@@ -79,7 +79,7 @@ const TermDefinition = t.type(
 			contents: t.array(TermToken),
 		}),
 	},
-	'TermDefinition'
+	"TermDefinition"
 );
 
 const TypeDefinition = t.type(
@@ -88,7 +88,7 @@ const TypeDefinition = t.type(
 			contents: t.array(TermToken),
 		}),
 	},
-	'TypeDefinition'
+	"TypeDefinition"
 );
 
 const GetDefinitionResponse = t.type(
@@ -96,13 +96,13 @@ const GetDefinitionResponse = t.type(
 		termDefinitions: t.record(t.string, TermDefinition),
 		typeDefinitions: t.record(t.string, TypeDefinition),
 	},
-	'GetDefinitionResponse'
+	"GetDefinitionResponse"
 );
 type TGetDefinitionResponse = t.TypeOf<typeof GetDefinitionResponse>;
 
 function unwrapResult<T>(result: t.Validation<T>): T {
 	if (isLeft(result)) {
-		throw new Error(PathReporter.report(result).join('\n'));
+		throw new Error(PathReporter.report(result).join("\n"));
 	}
 
 	return result.right;
