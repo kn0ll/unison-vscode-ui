@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { Actor, assign, createMachine } from "xstate";
+import { assign, createMachine } from "xstate";
 import { createApiClient } from "../api";
+import * as Commands from "../commands";
 import { CodebaseProvider } from "../tree-view";
 
 export interface Context {
@@ -173,8 +174,13 @@ export const createExtensionMachine = ({
 						treeDataProvider: codebaseProvider,
 					});
 
+					const editCommand = vscode.commands.registerCommand(
+						"unison-ui.edit",
+						Commands.edit(apiClient)
+					);
+
 					return {
-						subscriptions: [...ctx.subscriptions, treeView],
+						subscriptions: [...ctx.subscriptions, treeView, editCommand],
 						codebaseProvider,
 					};
 				}),

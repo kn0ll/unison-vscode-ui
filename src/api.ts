@@ -26,6 +26,7 @@ const TermObject = t.type(
 	},
 	"TermObject"
 );
+export type TTermObject = t.TypeOf<typeof TermObject>;
 
 const TypeObject = t.type(
 	{
@@ -38,6 +39,7 @@ const TypeObject = t.type(
 	},
 	"TypeObject"
 );
+export type TTypeObject = t.TypeOf<typeof TypeObject>;
 
 const PatchObject = t.type(
 	{

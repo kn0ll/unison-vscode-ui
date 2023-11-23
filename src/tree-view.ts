@@ -1,7 +1,7 @@
-import { elem } from "fp-ts/lib/Option";
 import path = require("path");
 import * as vscode from "vscode";
 import * as API from "./api";
+import { mapDefinitionsByName } from "./definition";
 
 export class CodebaseProvider
 	implements vscode.TreeDataProvider<CodebaseTreeviewChild>
@@ -44,9 +44,13 @@ export class CodebaseProvider
 				names: name,
 			});
 
+			const mapDefinitions = mapDefinitionsByName(name);
+			const termDefinitions = mapDefinitions(definition.termDefinitions);
+			const typeDefinitions = mapDefinitions(definition.typeDefinitions);
+
 			const signatureTokens =
-				definition.termDefinitions[name]?.signature ??
-				definition.typeDefinitions[name]?.typeDefinition.contents;
+				termDefinitions[name]?.signature ??
+				typeDefinitions[name]?.typeDefinition.contents;
 
 			if (signatureTokens) {
 				const typeDefinition = signatureTokens
@@ -87,10 +91,10 @@ const mapListingChildToTreeItem = (
 			);
 
 		case "TermObject":
-			return new CodebaseTreeviewChild(child.contents.termName, child);
+			return new CodebaseTermTreeviewChild(child.contents.termName, child);
 
 		case "TypeObject":
-			return new CodebaseTreeviewChild(child.contents.typeName, child);
+			return new CodebaseTypeTreeviewChild(child.contents.typeName, child);
 
 		case "PatchObject":
 			return null;
@@ -120,6 +124,39 @@ class CodebaseTreeviewChild extends vscode.TreeItem {
 		}
 	}
 }
+
+class CodebaseTypeTreeviewChild extends CodebaseTreeviewChild {
+	constructor(
+		public readonly label: string,
+		public readonly unisonChild: API.TTypeObject,
+		public readonly namespaceListingFQN?: string
+	) {
+		super(label, unisonChild, namespaceListingFQN);
+		
+        this.command = {
+            title: "Edit Type",
+            command: "unison-ui.edit",
+            arguments: [unisonChild.contents.typeHash]
+        };
+	}
+}
+
+class CodebaseTermTreeviewChild extends CodebaseTreeviewChild {
+	constructor(
+		public readonly label: string,
+		public readonly unisonChild: API.TTermObject,
+		public readonly namespaceListingFQN?: string
+	) {
+		super(label, unisonChild, namespaceListingFQN);
+		
+        this.command = {
+            title: "Edit Term",
+            command: "unison-ui.edit",
+            arguments: [unisonChild.contents.termHash]
+        };
+	}
+}
+
 
 function getNamespaceChildId(child: API.TNamespaceChild): string {
 	switch (child.tag) {
